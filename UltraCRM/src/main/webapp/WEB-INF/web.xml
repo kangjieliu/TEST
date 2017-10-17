@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+    http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+         
+    <display-name>Archetype Created Web Application</display-name>
+    <!--浏览器输入到项目名，默认打开如下配置页面-->
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+    
+    <!-- Session超时30分钟(零或负数表示会话永不超时) -->  
+    <session-config>  
+        <session-timeout>30</session-timeout>  
+    </session-config>  
+      
+  <!--程序运行时从web.xml开始，加载顺序为：context-param -> listener -> filter ->structs (如果使用structs的话)-> servlet-->
+  <context-param>
+     <param-name>contextConfigLocation</param-name>
+     <param-value>classpath:spring-application-context.xml</param-value>
+  </context-param>
+  
+  <listener>
+      <listener-class> org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+
+  <!-- 全局请求字符集过滤器,解决中文乱码问题-->
+  <filter>
+        <filter-name>encodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>encodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+  <!-- 普通类获取Request -->
+  <filter> 
+		<filter-name>requestFilter</filter-name>
+		<!-- <filter-class>com.web.MyHttpContext</filter-class> -->
+		<filter-class>com.ToneThink.web.filter.HttpContext</filter-class>
+  </filter>
+  <filter-mapping>
+		<filter-name>requestFilter</filter-name> 
+		<url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+		<filter-name>requestFilter</filter-name>
+		<url-pattern>*.do</url-pattern>
+  </filter-mapping>	
+
+  <servlet-mapping>
+         <servlet-name>jsp</servlet-name>
+         <url-pattern>*.jsp</url-pattern>
+         <!-- 让jspf扩展名同样成为JSP Servlet处理的文件。-->
+   <!--      <url-pattern>*.jspf</url-pattern>
+         <url-pattern>*.svg</url-pattern>
+         <url-pattern>*.ttf</url-pattern>
+         <url-pattern>*.woff</url-pattern>
+         <url-pattern>*.woff2</url-pattern> -->
+      </servlet-mapping>
+
+    <!-- 配置Shiro过滤器,先让Shiro过滤系统接收到的请求 -->  
+    <!-- 这里filter-name必须对应spring-application-context.xml->spring-shiro.xml中定义的<bean id="shiroFilter"/> -->  
+    <!-- 使用[/*]匹配所有请求,保证所有的可控请求都经过Shiro的过滤 -->  
+    <!-- 通常会将此filter-mapping放置到最前面(即其他filter-mapping前面),以保证它是过滤器链中第一个起作用的 -->  
+ <!--      <filter>
+        <filter-name>shiroFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            如果要保留Filter原有的init，destroy方法的调用，还需要配置初始化参数targetFilterLifecycle为true，该参数默认为false  
+            <param-name>targetFilterLifecycle</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>shiroFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+ -->
+  <!-- Spring MVC 控制器  配置开始-->
+  <servlet>
+    <servlet-name>UltraCRM_init</servlet-name>
+    <servlet-class>com.CallThink.base.pmCode.UltraCRM_init</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+    
+   <servlet>
+        <servlet-name>springmvc</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring-mvc-servlet.xml</param-value>
+        </init-param>
+        <load-on-startup>3</load-on-startup>  <!-- 容器启动时首先初始化该servlet -->
+        <async-supported>true</async-supported>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>springmvc</servlet-name>
+        <url-pattern>/</url-pattern>           <!--/表示所有页面都由springmvc处理 -->
+    </servlet-mapping>
+
+	<jsp-config>  
+	    <taglib>  
+	      <taglib-uri>/ctsControl</taglib-uri>  
+	      <taglib-location>/META-INF/ctsControl.tld</taglib-location>  
+	    </taglib>  
+	</jsp-config>
+	  
+    <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/views/error/404.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/WEB-INF/views/error/500.jsp</location>
+    </error-page>
+
+</web-app>
